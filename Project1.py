@@ -19,7 +19,7 @@ def BlankTileLocation(CurrentNode):
     row, col = np.where(CurrentNode == 0)
     return row, col
 
-
+# Move Blank Tile to Left
 def ActionMoveLeft(CurrentNode):
     newNode = np.copy(CurrentNode)
     [i, j] = BlankTileLocation(newNode)
@@ -30,6 +30,7 @@ def ActionMoveLeft(CurrentNode):
     newNode[[i, j]], newNode[[i, j-1]] = newNode[[i, j-1]], newNode[[i, j]]
     return status, newNode
 
+# Move Blank Tile to Right
 def ActionMoveRight(CurrentNode):
     newNode = np.copy(CurrentNode)
     [i, j] = BlankTileLocation(newNode)
@@ -40,6 +41,7 @@ def ActionMoveRight(CurrentNode):
     newNode[[i, j]], newNode[[i, j+1]] = newNode[[i, j+1]], newNode[[i, j]]
     return status, newNode
 
+# Move Blank Tile UP
 def ActionMoveUp(CurrentNode):
     newNode = np.copy(CurrentNode)
     [i, j] = BlankTileLocation(newNode)
@@ -50,6 +52,7 @@ def ActionMoveUp(CurrentNode):
     newNode[[i, j]], newNode[[i-1, j]] = newNode[[i-1, j]], newNode[[i, j]]
     return status, newNode
 
+# Move Blank Tile DOWN
 def ActionMoveDown(CurrentNode):
     newNode = np.copy(CurrentNode)
     [i, j] = BlankTileLocation(newNode)
