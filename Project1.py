@@ -71,6 +71,17 @@ def ActionMoveDown(CurrentNode):
     return status, newNode
 
 
+def CheckNodePresence(testnode,list):
+    l=len(list)
+    testnode_copy=np.copy(testnode)
+    for k in range(l):
+        state=0
+        if np.array_equal(list(k),testnode_copy):
+            state=1
+            break
+    return state
+
+
 parent_index = 0
 child_index = 0
 Final_node_state.append(start_config)
@@ -80,28 +91,46 @@ while child_index <= len(Final_node_state):
 
     status, left_temp = ActionMoveLeft(live_node)
     if status == 1:
-        Final_node_state.append(left_temp)
-        child_index += 1
+        if CheckNodePresence(left_temp,Final_node_state) == 0:
+            Final_node_state.append(left_temp)
+            child_index += 1
     Node_state.append([parent_index, child_index])
 
     status, right_temp = ActionMoveRight(live_node)
     if status == 1:
-        Final_node_state.append(right_temp)
-        child_index += 1
+        if CheckNodePresence(right_temp, Final_node_state) == 0:
+            Final_node_state.append(right_temp)
+            child_index += 1
     Node_state.append([parent_index, child_index])
 
     status, up_temp = ActionMoveUp(live_node)
     if status == 1:
-        Final_node_state.append(ActionMoveUp())
-        child_index += 1
+        if CheckNodePresence(up_temp, Final_node_state) == 0:
+            Final_node_state.append(ActionMoveUp())
+            child_index += 1
     Node_state.append([parent_index, child_index])
 
     status, down_temp = ActionMoveDown(live_node)
     if status == 1:
-        Final_node_state.append(down_temp)
-        child_index += 1
+        if CheckNodePresence(down_temp, Final_node_state) == 0:
+            Final_node_state.append(down_temp)
+            child_index += 1
     Node_state.append([parent_index, child_index])
+parent_index += 1
 
+
+if np.array_equal(left_temp,final_state):
+    print(left_temp)
+    break
+if np.array_equal(right_temp,final_state):
+    print(right_temp)
+    break
+if np.array_equal(up_temp,final_state):
+    print(up_temp)
+    break
+if np.array_equal(down_temp,final_state):
+    print(down_temp)
+    break
 
 
 
