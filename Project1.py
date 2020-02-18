@@ -1,5 +1,7 @@
 import numpy as np
 import os
+import warnings
+warnings.filterwarnings(action='ignore', category=FutureWarning)
 
 Node_state = [[0, 0]]  # storing parent child state info
 
@@ -90,9 +92,10 @@ def IsPuzzleSolvable(puzzletest):
                 inv_count+=1
     return inv_count % 2 == 0
 a=IsPuzzleSolvable(testarray) == 1
-print(a)
+
 if(a ==1):
-    print("is solvable")
+    a=0
+    print(" Puzzle is solvable\n Solving the puzzle Please wait....")
 
     parent_index = 0
     child_index = 0
