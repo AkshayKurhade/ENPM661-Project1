@@ -10,7 +10,7 @@
 ```
 pip install numpy
 ```
-2) OS /Preinstalled under STDlib
+2) OS *Preinstalled under STDlib*
 
 ## To run the program
 ### Python interpreter 
