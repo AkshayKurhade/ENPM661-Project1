@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import warnings
+
 warnings.filterwarnings(action='ignore', category=FutureWarning)
 
 Node_state = [[0, 0]]  # storing parent child state info
@@ -18,12 +19,14 @@ for x in range(3):
 
 start_config = np.array(initial_state)
 
-testarray= start_config.flatten()
+testarray = start_config.flatten()
+
 
 # finding blank tile location
 def BlankTileLocation(CurrentNode):
     row, col = np.where(CurrentNode == 0)
     return row, col
+
 
 # Move Blank Tile to Left
 def ActionMoveLeft(CurrentNode):
@@ -76,38 +79,42 @@ def ActionMoveDown(CurrentNode):
 
 
 def CheckNodePresence(testnode, list):
-    l=len(list)
-    testnode_copy=np.copy(testnode)
+    l = len(list)
+    testnode_copy = testnode.copy()
     for k in range(l):
         state = False
         if np.array_equal(list[k], testnode_copy):
             state = True
             break
     return state
-def IsPuzzleSolvable(puzzletest):
-    inv_count=0
-    for i in range(0,8):
-        for j in range (i+1,9):
-            if(puzzletest[j] and puzzletest[i] and puzzletest[i] > puzzletest[j]):
-                inv_count+=1
-    return inv_count % 2 == 0
-a=IsPuzzleSolvable(testarray) == 1
 
-if(a ==1):
-    a=0
-    print(" Puzzle is solvable\n Solving the puzzle Please wait....")
+
+def IsPuzzleSolvable(puzzletest):
+    inv_count = 0
+    for i in range(0, 8):
+        for j in range(i + 1, 9):
+            if (puzzletest[j] and puzzletest[i] and puzzletest[i] > puzzletest[j]):
+                inv_count += 1
+    return inv_count % 2 == 0
+
+
+a = IsPuzzleSolvable(testarray) == 1
+
+if a == 1:
+    a = 0
+    print(" Puzzle is solvable\n Solving the puzzle....\n Please be patient this may take a while..")
 
     parent_index = 0
     child_index = 0
     start_node = start_config
     Final_node_state.append(start_node)
 
-    while child_index <= len(Final_node_state):
+    while parent_index <= len(Final_node_state):
         live_node = Final_node_state[parent_index]
 
         status, left_temp = ActionMoveLeft(live_node)
         if status == 1:
-            if CheckNodePresence(left_temp, Final_node_state) == False:
+            if CheckNodePresence(left_temp, Final_node_state) == 0:
                 Final_node_state.append(left_temp)
                 child_index += 1
         Node_state.append([parent_index, child_index])
@@ -148,13 +155,13 @@ if(a ==1):
             print(down_temp)
             break
 
-    lists =[]
+    lists = []
     final_state = final_state.transpose()
     lists.append(final_state)
     NodeState_length = len(Node_state)
     Node_state = np.array(Node_state)
 
-    X = Node_state[NodeState_length-1]
+    X = Node_state[NodeState_length - 1]
     element1 = X[0]
     element2 = X[1]
     print(element2, element1)
@@ -167,15 +174,16 @@ if(a ==1):
                 element2 = X[1]
                 Y = Final_node_state[element2]
                 Y = np.array(Y)
-                Y = Y.T
+                Y = Y.transpose()
                 listY = Y.tolist()
                 lists.append(listY)
                 count += 1
                 print(element2, element1)
 
-    start_node = np.array(start_config)
-    start_node = start_node.T
+    start_node = np.array(start_node)
+    start_node = start_node.transpose()
     lists.append(start_node)
+
     if os.path.exists("Nodes.txt"):
         os.remove("Nodes.txt")
 
@@ -212,4 +220,4 @@ if(a ==1):
 
     print("no of nodes created: ", len(Final_node_state))
 else:
-    print("unsolvable")
+    print("Puzzle is unsolvable")
