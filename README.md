@@ -11,7 +11,7 @@
 pip install numpy
 ```
 2) OS *Preinstalled under STDlib*
-3) Functions *The Functions.py file must be in the same directory or the past must be provided*
+3) Functions *The Functions.py file must be in the same directory or the path must be provided*
 
 ## To run the program
 ### Python interpreter 
