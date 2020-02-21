@@ -1,10 +1,12 @@
 import numpy as np
 import os
-import warnings
+import collections
+import Functions
 
-warnings.filterwarnings(action='ignore', category=FutureWarning)
+# import warnings
+# warnings.filterwarnings(action='ignore', category=FutureWarning)
 
-Node_state = [[0, 0]]  # storing parent child state info
+# Node_state = [[0, 0]]  # storing parent child state info
 
 Final_node_state = []  # Final state info
 
@@ -17,207 +19,72 @@ print("enter the initial state list")
 for x in range(3):
     initial_state.append(list(map(int, input().rstrip().split())))
 
+# initial_state = [[1, 7, 3], [5, 8, 2], [6, 0, 4]]
 start_config = np.array(initial_state)
 
 testarray = start_config.flatten()
+##Before starting checking whether the puzzle is solvable
+solvable = Functions.IsPuzzleSolvable(testarray) == 1
 
-
-# finding blank tile location
-def BlankTileLocation(CurrentNode):
-    row, col = np.where(CurrentNode == 0)
-    return row, col
-
-
-# Move Blank Tile to Left
-def ActionMoveLeft(CurrentNode):
-    newNode = np.copy(CurrentNode)
-    [i, j] = BlankTileLocation(newNode)
-    if j == 0:
-        status = False
-    else:
-        status = True
-    newNode[[i, j]], newNode[[i, j - 1]] = newNode[[i, j - 1]], newNode[[i, j]]
-    return status, newNode
-
-
-# Move Blank Tile to Right
-def ActionMoveRight(CurrentNode):
-    newNode = np.copy(CurrentNode)
-    [i, j] = BlankTileLocation(newNode)
-    if j < 2:
-        status = True
-        newNode[[i, j]], newNode[[i, j + 1]] = newNode[[i, j + 1]], newNode[[i, j]]
-    else:
-        status = False
-
-    return status, newNode
-
-
-# Move Blank Tile UP
-def ActionMoveUp(CurrentNode):
-    newNode = np.copy(CurrentNode)
-    [i, j] = BlankTileLocation(newNode)
-    if i == 0:
-        status = False
-    else:
-        status = True
-    newNode[[i, j]], newNode[[i - 1, j]] = newNode[[i - 1, j]], newNode[[i, j]]
-    return status, newNode
-
-
-# Move Blank Tile DOWN
-def ActionMoveDown(CurrentNode):
-    newNode = np.copy(CurrentNode)
-    [i, j] = BlankTileLocation(newNode)
-    if i < 2:
-        status = True
-        newNode[[i, j]], newNode[[i + 1, j]] = newNode[[i + 1, j]], newNode[[i, j]]
-    else:
-        status = False
-
-    return status, newNode
-
-
-def CheckNodePresence(testnode, list):
-    l = len(list)
-    testnode_copy = testnode.copy()
-    for k in range(l):
-        state = False
-        if np.array_equal(list[k], testnode_copy):
-            state = True
-            break
-    return state
-
-
-def IsPuzzleSolvable(puzzletest):
-    inv_count = 0
-    for i in range(0, 8):
-        for j in range(i + 1, 9):
-            if (puzzletest[j] and puzzletest[i] and puzzletest[i] > puzzletest[j]):
-                inv_count += 1
-    return inv_count % 2 == 0
-
-
-a = IsPuzzleSolvable(testarray) == 1
-
-if a == 1:
-    a = 0
+if solvable == 1:
     print(" Puzzle is solvable\n Solving the puzzle....\n Please be patient this may take a while..")
-
+    visited = set()
     parent_index = 0
     child_index = 0
-    start_node = start_config
-    Final_node_state.append(start_node)
+    nodes_list = []
+    # start_node = start_config
+    start_node = Functions.mattostring(start_config)
+    nodes_list.append([start_node, -1])
+    queue = collections.deque()
+    queue.append(0)
+    i = 0
+    temp = np.empty(4, dtype='object')  # All nodes after a move are stored as an object to reduce to access type
+    reached_finalstate = False
 
-    while parent_index <= len(Final_node_state):
-        live_node = Final_node_state[parent_index]
+    live_node = ""
+    while queue:
+        parent_index = queue.popleft()
+        live_node = nodes_list[parent_index][0]
+        # Locate and move blank tile if possible
+        temp[0] = Functions.ActionMoveLeft(live_node)
+        temp[1] = Functions.ActionMoveRight(live_node)
+        temp[2] = Functions.ActionMoveUp(live_node)
+        temp[3] = Functions.ActionMoveDown(live_node)
 
-        status, left_temp = ActionMoveLeft(live_node)
-        if status == 1:
-            if CheckNodePresence(left_temp, Final_node_state) == 0:
-                Final_node_state.append(left_temp)
-                child_index += 1
-        Node_state.append([parent_index, child_index])
+        for b in range(0, 4):
+            # Check if the move action returns empty or is already visited
+            if (temp[b] is not None) and (temp[b] not in visited):
+                visited.add(temp[b])  # add it to the list of visited nodes
+                Functions.WriteNode(temp[b])  # Write Traversed Node to "Nodes.txt"
+                Functions.WriteNodeInfo(len(nodes_list) - 1, parent_index)  # write parent child info to "NodesInfo.txt"
+                nodes_list.append([temp[b], parent_index])
+                queue.append(len(nodes_list) - 1)
 
-        status, right_temp = ActionMoveRight(live_node)
-        if status == 1:
-            if CheckNodePresence(right_temp, Final_node_state) == 0:
-                Final_node_state.append(right_temp)
-                child_index += 1
-        Node_state.append([parent_index, child_index])
-
-        status, up_temp = ActionMoveUp(live_node)
-        if status == 1:
-            if CheckNodePresence(up_temp, Final_node_state) == 0:
-                Final_node_state.append(up_temp)
-                child_index += 1
-        Node_state.append([parent_index, child_index])
-
-        status, down_temp = ActionMoveDown(live_node)
-        if status == 1:
-            if CheckNodePresence(down_temp, Final_node_state) == 0:
-                Final_node_state.append(down_temp)
-                child_index += 1
-        Node_state.append([parent_index, child_index])
-
-        parent_index += 1
-
-        if np.array_equal(left_temp, final_state):
-            print(left_temp)
-            break
-        if np.array_equal(right_temp, final_state):
-            print(right_temp)
-            break
-        if np.array_equal(up_temp, final_state):
-            print(up_temp)
-            break
-        if np.array_equal(down_temp, final_state):
-            print(down_temp)
-            break
-
-    lists = []
-    final_state = final_state.transpose()
-    lists.append(final_state)
-    NodeState_length = len(Node_state)
-    Node_state = np.array(Node_state)
-
-    X = Node_state[NodeState_length - 1]
-    element1 = X[0]
-    element2 = X[1]
-    print(element2, element1)
-    count = 0
-    while element1 != 0:
-        for i in range(NodeState_length):
-            X = Node_state[i]
-            if X[1] == element1:
-                element1 = X[0]
-                element2 = X[1]
-                Y = Final_node_state[element2]
-                Y = np.array(Y)
-                Y = Y.transpose()
-                listY = Y.tolist()
-                lists.append(listY)
-                count += 1
-                print(element2, element1)
-
-    start_node = np.array(start_node)
-    start_node = start_node.transpose()
-    lists.append(start_node)
-
-    if os.path.exists("Nodes.txt"):
-        os.remove("Nodes.txt")
-
-    file = open("Nodes.txt", "a")
-    X = Final_node_state
-    for item in X:
-        for element in item.T:
-            for index in element:
-                file.write("%i\t" % index)
-        file.write("\n")
-    file.close()
-
-    if os.path.exists("NodesInfo.txt"):
-        os.remove("NodesInfo.txt")
-
-    file = open("NodesInfo.txt", "a")
-    Z = Node_state.tolist()
-    for item in Z:
-        for index in reversed(range(2)):
-            file.write("%i\t" % item[index])
-        file.write("0")
-        file.write("\n")
-    file.close()
-
+                if (temp[b] == Functions.mattostring(final_state)):
+                    goal_node = len(nodes_list)
+                    queue.clear()
+                    reached_finalstate = True
+                    break
+            if reached_finalstate:
+                break
+    print("Path Found..\n Wrapping Up..")
+    Final_node_state.append(nodes_list[-1][0])  # Goal
+    parent = nodes_list[-1][1]  # parent to the goal
+    while parent != -1:
+        Final_node_state.append(nodes_list[parent][0])
+        parent = nodes_list[parent][1]
+    # Reverse the path so its from start to goal
+    Final_node_state.reverse()
     if os.path.exists("nodePath.txt"):
         os.remove("nodePath.txt")
     file = open("nodePath.txt", "w")
-    for a in reversed(lists):
-        for element in a:
-            for index in element:
-                file.write("%i\t" % index)
-        file.write("\n")
-    file.close()
+    for count, move in enumerate(Final_node_state):
+        emptystring = ""
+        for i in range(0, len(move)):
+            emptystring = emptystring + str(move[i]) + " "
+        emptystring = emptystring + "\n"
+        file.write(emptystring)
 
-    print("no of nodes created: ", len(Final_node_state))
+
 else:
-    print("Puzzle is unsolvable")
+    print("Puzzle is unsolvable..\n Try a Different Combination")
